@@ -1,0 +1,64 @@
+{
+  "entities": {
+    "EmailCampaign": {
+      "title": "EmailCampaign",
+      "description": "An email campaign for bulk sending",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subject": { "type": "string" },
+        "category": { "type": "string" },
+        "recipientCount": { "type": "number" },
+        "status": { 
+          "type": "string",
+          "enum": ["draft", "sent", "scheduled"]
+        },
+        "scheduledDate": { "type": "string", "format": "date-time" },
+        "content": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "subject", "category", "recipientCount", "status", "content"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "A system or user notification",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "read": { "type": "boolean" },
+        "type": { "type": "string" },
+        "campaignId": { "type": "string" },
+        "userId": { "type": "string" }
+      },
+      "required": ["id", "title", "message", "createdAt", "read", "userId"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "App settings",
+      "type": "object",
+      "properties": {
+        "facebook": { "type": "string" },
+        "instagram": { "type": "string" },
+        "linkedin": { "type": "string" },
+        "tiktok": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/campaigns/{campaignId}": {
+      "schema": "EmailCampaign",
+      "description": "Collection of email campaigns"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Collection of user notifications"
+    },
+    "/settings/{settingId}": {
+      "schema": "Settings",
+      "description": "System settings"
+    }
+  }
+}

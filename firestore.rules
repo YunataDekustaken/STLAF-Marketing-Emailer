@@ -1,0 +1,88 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: campaigns
+// Document ID: {campaignId}
+// Fields:
+//   - id: string (required) - Unique identifier
+//   - subject: string (required)
+//   - category: string (required)
+//   - recipientCount: number (required)
+//   - status: string (required) - Enum: draft, sent, scheduled
+//   - content: string (required)
+//   - scheduledDate: string (optional)
+//   - userId: string (optional) - Owner UID
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "pjhbayno15@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidCampaign(data) {
+      return data.keys().hasAll(['id', 'subject', 'category', 'recipientCount', 'status', 'content']) &&
+             data.id is string && data.id.size() > 0 &&
+             data.subject is string && data.subject.size() < 200 &&
+             data.category is string && data.category.size() < 200 &&
+             data.recipientCount is number && data.recipientCount >= 0 &&
+             data.status in ['draft', 'sent', 'scheduled'] &&
+             data.content is string && data.content.size() < 50000;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /campaigns/{campaignId} {
+      allow read, write: if true; // Relaxed for "disable login" request. WARNING: Publicly accessible.
+    }
+
+    match /users/{userId} {
+      allow read, write: if true; // Relaxed for "disable login" request.
+    }
+
+    match /notifications/{notificationId} {
+      allow read, write: if true;
+    }
+
+    match /settings/{settingId} {
+      allow read, write: if true; // Relaxed for "disable login" request.
+    }
+
+    match /templates/{templateId} {
+      allow read, write: if true;
+    }
+
+    match /recipients/{recipientId} {
+      allow read, write: if true;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

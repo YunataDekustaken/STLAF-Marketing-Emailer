@@ -1,0 +1,5 @@
+{
+  "name": "Remix: MailersHub Email Marketing",
+  "description": "An email blast webapp where users can send bulk emails, updates, offers, and promotions to clients.",
+  "requestFramePermissions": []
+}
